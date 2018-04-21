@@ -1,44 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-
     <title>Monitor</title>
-
-    <script>
-
-        window.onload = function () {
-            if (!hasAccountId()) {
-                window.location.replace("index.html");
-            }
-        };
-
-    </script>
-
 
     <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/bloodpleasure.css">
     <script src="js/something.js"></script>
+    <script src="js/bloodpleasure.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <!--<script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js">\x3C/script>')</script>-->
     <script src="https://cdn.bootcss.com/paho-mqtt/1.0.2/mqttws31.min.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
     <script src="https://cdn.bootcss.com/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdn.bootcss.com/echarts/4.0.4/echarts.min.js"></script>
-    <script src="js/bloodpleasure.js"></script>
 
     <script>
 
+        hardwareIds = [];
+        chart = null;
 
         $(document)
             .ready(function () {
 
-                $('.tabular.menu .item').tab();
+
+                if (!hasAccountId()) {
+                    jumpIndex();
+                    return;
+                }
+
+                colors = ["#767676", "#2185d0", "#6435c9", "#a333c8", "#e03997", "#db2828"];
+
+                $('.tabular.menu .item').tab({
+                    'onLoad': function (a) {
+                        if (a === "chart") {
+
+                            if (chart == null) {
+
+                                let chartDiv = document.getElementById('chart');
+                                let chartTab = $("#chart-tab");
+                                chartTab.addClass("loading");
+
+                                getDeviceValues().done(values => {
+
+                                    let length = values.length;
+
+
+                                    chart = echarts.init(chartDiv);
+
+                                    xValues = [];
+                                    if (length > 0) {
+                                        xValues = Array.from(new Array(length), (x, i) => i + 1);
+                                    }
+
+                                    option = {
+                                        title: {
+                                            text: '体温变化情况',
+                                            subtext: '最近100条'
+                                        },
+                                        tooltip: {
+                                            trigger: 'axis'
+                                        },
+                                        legend: {
+                                            data: ['体温']
+                                        },
+                                        // toolbox: {
+                                        //     left: 'center',
+                                        //     feature: {
+                                        //         dataZoom: {
+                                        //             yAxisIndex: 'none'
+                                        //         },
+                                        //     }
+                                        // },
+                                        xAxis: [
+                                            {
+                                                type: 'category',
+                                                data: xValues
+                                            }
+                                        ],
+                                        yAxis: [
+                                            {
+                                                type: 'value',
+                                                axisLabel: {
+                                                    formatter: '{value} °C'
+                                                },
+                                                splitLine: {
+                                                    show: false
+                                                }
+                                            }
+                                        ],
+                                        dataZoom: [
+                                            {
+                                                type: 'slider',
+                                                start: 1,
+                                                end: 10
+                                            },
+                                            {
+                                                type: 'inside',
+                                                start: 1,
+                                                end: 10
+                                            },
+
+                                        ],
+                                        series: [
+                                            {
+                                                name: '体温',
+                                                type: 'line',
+                                                data: values.map(value => value.value),
+                                                smooth: true,
+                                                markPoint: {
+                                                    data: [
+                                                        {type: 'max', name: '最大值'},
+                                                        {type: 'min', name: '最小值'}
+                                                    ]
+                                                },
+                                                markLine: {
+                                                    data: [
+                                                        {type: 'average', name: '平均值'}
+                                                    ]
+                                                },
+
+                                                itemStyle: {
+                                                    normal: {
+                                                        color: '#2185d0',
+                                                    }
+                                                }
+                                            }
+                                        ],
+
+                                        visualMap: {
+                                            // min: 36,
+                                            // max: 43,
+                                            // inRange: {
+                                            //     color: colors,
+                                            //     symbolSize: [30, 100]
+                                            //
+                                            // },
+                                            pieces: [{
+                                                gt: 0,
+                                                lte: 350,
+                                                color: colors[0]
+                                            }, {
+                                                gt: 350,
+                                                lte: 365,
+                                                color: colors[1]
+                                            }, {
+                                                gt: 365,
+                                                lte: 372,
+                                                color: colors[2]
+                                            }, {
+                                                gt: 372,
+                                                lte: 383,
+                                                color: colors[0]
+                                            }, {
+                                                gt: 383,
+                                                lte: 395,
+                                                color: colors[0]
+                                            }],
+                                            outOfRange: {
+                                                color: colors[colors.length - 1]
+                                            }
+                                        },
+                                        // visualMap: {
+                                        //     top: 10,
+                                        //     right: 10,
+                                        //     pieces: [{
+                                        //         gt: 0,
+                                        //         lte: 50,
+                                        //         color: '#096'
+                                        //     }, {
+                                        //         gt: 50,
+                                        //         lte: 100,
+                                        //         color: '#ffde33'
+                                        //     }, {
+                                        //         gt: 100,
+                                        //         lte: 150,
+                                        //         color: '#ff9933'
+                                        //     }, {
+                                        //         gt: 150,
+                                        //         lte: 200,
+                                        //         color: '#cc0033'
+                                        //     }, {
+                                        //         gt: 200,
+                                        //         lte: 300,
+                                        //         color: '#660099'
+                                        //     }, {
+                                        //         gt: 300,
+                                        //         color: '#7e0023'
+                                        //     }],
+                                        //     outOfRange: {
+                                        //         color: '#999'
+                                        //     }
+                                        // }
+
+                                    };
+
+                                    chart.setOption(option);
+                                    window.onresize = chart.resize;
+
+                                    chartTab.removeClass("loading");
+
+                                });
+                            }
+
+                        }
+                    }
+                });
+
 
                 let hm = new Hammer(document.getElementById("root"));
                 hm.on("swipeleft", function (ev) {
@@ -47,19 +217,159 @@
                 hm.on("swiperight", function (ev) {
                 });
 
-                connectMqtt();
 
                 if (isHardwareProvider()) {
-
+                    getMonitorData().text("˃ᴗ˂");
                 } else {
-                    getMonitorData().innerText = "๑.๑"
+                    getMonitorData().text("๑.๑");
                 }
+
+                $("#button-logout").click(function () {
+                    $("#button-logout").addClass("loading");
+                    clearAccountId();
+                    jumpIndex();
+                });
+
+                $("#button-reconnect").click(function () {
+                    loadingReconnectButton(true);
+                    connectMqtt();
+                });
+
+                requestHardwareId(getAccountId()).done(function (data) {
+
+                    if (data.length === 0) {
+                        getMonitorData().text("没有绑定设备");
+                        return;
+                    }
+
+                    data.forEach(function (item) {
+                        if (item.hardwareId == null || item.hardwareId === "") {
+                            return;
+                        }
+                        hardwareIds.push(item.hardwareId);
+                    });
+
+                    connectMqtt();
+                });
 
 
             });
 
-    </script>
+        function connectMqtt() {
+            if (mqttClient != null && mqttClient.isConnected()) {
+                mqttClient.disconnect();
+            }
+            mqttClient = new Paho.MQTT.Client(getMqttUrl(), getMqttPort(), getMqttClientPrefix() + parseInt(Math.random() * 100, 10));
+            mqttClient.onConnectionLost = onMqttLost;
+            mqttClient.onMessageArrived = onMqttReceived;
+            mqttClient.connect({userName: getMqttUser(), password: getMqttPassword(), onSuccess: onMqttConnect});
+        }
 
+        function hardwareValue(result, androidId) {
+            let message = makeMessage(result, androidId);
+            let value = message.hardwareValue.payload.data.value;
+            putDeviceValue(message);
+            showMonitorData(value);
+            publishMqttMessage(makeMqttMessage(message))
+        }
+
+        function onMqttConnect() {
+            console.log("onMqttConnect");
+            showReconnectButton(false);
+            loadingReconnectButton(false);
+            if (!isHardwareProvider()) {
+                hardwareIds.forEach(function (hardwareId) {
+                    console.log("mqttSubscribe: " + getTopic() + "/" + hardwareId);
+                    mqttClient.subscribe(getTopic() + "/" + hardwareId);
+                });
+
+            } else {
+                BloodPleasure.pageReady();
+            }
+        }
+
+        function putDeviceValue(message) {
+
+            let postObj = message.hardwareValue.payload.data;
+            postObj.hardwareId = message.hardwareId;
+
+            $.post({
+                type: "POST",
+                url: getApiRootUrl() + "/hardware/value",
+                data: JSON.stringify(postObj),
+                contentType: "application/json"
+            });
+        }
+
+        function getDeviceValues() {
+            return $.get(getApiRootUrl() + "/hardware/value", {accountId: getAccountId()})
+        }
+
+        function requestHardwareId(accountId) {
+            return $.get(getApiRootUrl() + "/hardware", {accountId: accountId, hardwareId: getHardwareId()})
+        }
+
+        function onMqttLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("onMqttLost:" + responseObject.errorMessage);
+                loadingReconnectButton(false);
+                showReconnectButton(true);
+            }
+        }
+
+        function showReconnectButton(show) {
+            if (show) {
+                $("#button-reconnect").removeClass("hidden");
+            } else {
+                $("#button-reconnect").addClass("hidden");
+            }
+        }
+
+        function loadingReconnectButton(loading) {
+            if (loading) {
+                $("#button-reconnect").addClass("loading");
+            } else {
+                $("#button-reconnect").removeClass("loading");
+            }
+        }
+
+
+        function onMqttReceived(message) {
+            console.log("onMqttReceived:" + message.payloadString);
+            if (!isHardwareProvider()) {
+                showMonitorData(parseMessage(message.payloadString).hardwareValue.payload.data.value)
+            }
+        }
+
+
+        function makeMqttMessage(value) {
+            let mqttMessage = new Paho.MQTT.Message(JSON.stringify(value));
+            mqttMessage.destinationName = getTopic() + "/" + value.hardwareId;
+            return mqttMessage;
+        }
+
+        function publishMqttMessage(value) {
+            if (mqttClient != null && mqttClient.isConnected()) {
+                mqttClient.send(value);
+                console.log("mqttPublish: " + value.destinationName);
+            }
+        }
+
+
+        function showMonitorData(value) {
+            getMonitorData().text(value);
+        }
+
+        function getMonitorData() {
+            return $("#monitor-data");
+        }
+
+        function getMonitorCircular() {
+            return $("#monitor-circular");
+        }
+
+
+    </script>
 
 </head>
 <body>
@@ -70,7 +380,7 @@
         <div class="column main-column fs">
             <div class="row main-row padding-top padding-bottom fs">
 
-                <div class="ui top attached tabular menu">
+                <div class="ui top attached tabular menu" id="tab">
                     <div class="item active" data-tab="monitor">检测</div>
                     <div class="item" data-tab="chart">历史</div>
                     <div class="item" data-tab="user">帐号</div>
@@ -78,58 +388,52 @@
 
 
                 <!--检测页-->
-                <div class="ui bottom attached tab segment active tab-fixed" data-tab="monitor">
+                <div class="ui bottom attached tab segment tab-fixed active" data-tab="monitor">
 
                     <div class="ui center aligned one column grid">
-                        <!--<div class="column">-->
-                        <div class="middle aligned row">
+                        <div class="bottom aligned row">
                             <div class="column">
                                 <div class="ui monitor-circular" id="monitor-circular">
                                     <p class="ui vertical fluid light-grey monitor-data" id="monitor-data">asdfadsf</p>
                                 </div>
                             </div>
 
+
                         </div>
 
-                        <!--</div>-->
+                        <div class="bottom aligned row">
+                            <div class="column">
+                                <button class="ui red basic button hidden" id="button-reconnect">
+                                    服务器连接断开，重试？
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
 
+
                 </div>
 
 
-                <div class="ui bottom attached tab segment tab-fixed" data-tab="chart">
-                    <div id="chart" style="height: 600px; width: 800px"></div>
-                    <script type="text/javascript">
+                <div class="ui bottom attached tab segment tab-fixed" id="chart-tab" data-tab="chart">
 
-                        // 基于准备好的dom，初始化echarts实例
-                        var myChart = echarts.init(document.getElementById('chart'));
+                    <div class="ui center aligned one column grid">
+                        <div class="column" id="chart"></div>
 
-                        // 指定图表的配置项和数据
-                        var option = {
-                            title: {
-                                text: 'ECharts 入门示例'
-                            },
-                            tooltip: {},
-                            legend: {
-                                data: ['销量']
-                            },
-                            xAxis: {
-                                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
-                            },
-                            yAxis: {},
-                            series: [{
-                                name: '销量',
-                                type: 'bar',
-                                data: [5, 20, 36, 10, 10, 20]
-                            }]
-                        };
+                    </div>
 
-                        // 使用刚指定的配置项和数据显示图表。
-                        myChart.setOption(option);
-                    </script>
+
                 </div>
                 <div class="ui bottom attached tab segment tab-fixed" data-tab="user">
-                    <p>3</p>
+                    <div class="ui center aligned one column grid">
+                        <div class="middle aligned row">
+                            <div class="column">
+                                <button class="ui violet button" style="min-width: 250px; max-width: 450px"
+                                        id="button-logout">登出
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

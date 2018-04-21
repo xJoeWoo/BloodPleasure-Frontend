@@ -5,21 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Login</title>
 
-    <script>
-        window.onload = function () {
-            if(hasAccountId()){
-                window.location.replace("index.html");
-            }
-        };
-    </script>
-
     <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/bloodpleasure.css">
 
     <script src="js/something.js"></script>
+    <script src="js/bloodpleasure.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
-    <script src="js/bloodpleasure.js"></script>
 
     <style type="text/css">
         .column {
@@ -35,9 +27,15 @@
 
     $(document)
         .ready(function () {
+
+            if (hasAccountId()) {
+                jumpIndex();
+                return;
+            }
+
             $('.ui.form');
 
-            summitTimerCallback();
+            submitTimerCallback();
 
             //是硬件确认，不是要求在手机登录
 
@@ -87,6 +85,7 @@
                                     error.text("首次使用请先在 App 登录");
                                 } else {
                                     needRegisiter = true;
+                                    $("#header").text("欢迎首次使用")
                                     mobileField.after('\
                      <div class="field" id="form-field-mobile-confirm" >\
                         <div class="ui left icon input">\
@@ -110,7 +109,7 @@
     ;
 
     let colors = ["blue", "violet", "purple"];
-    let colorIndex = 0;
+    let colorIndex = 1;
     let direction = false;
     let mobileRegEx = /^[1][34578][0-9]{9}$/;
 
@@ -119,19 +118,19 @@
     }
 
     function setAccountIdAndJump(accountId) {
-        localStorage.setItem("accountId", accountId);
-        window.location.href = getRootUrl() + "/monitor.html";
+        setAccountId(accountId);
+        jump("monitor.html");
     }
 
-    function summitTimerCallback() {
-        let summitButton = $("#login-summit-button");
+    function submitTimerCallback() {
+        let summitButton = $("#login-submit-button");
         summitButton.removeClass(colors[colorIndex]);
         if (colorIndex >= colors.length - 1 || colorIndex < 1) {
             direction = !direction;
         }
         colorIndex = direction ? colorIndex + 1 : colorIndex - 1;
         summitButton.addClass(colors[colorIndex]);
-        setTimeout("summitTimerCallback()", 30000);
+        setTimeout("submitTimerCallback()", 30000);
     }
 
     function requestAccountId(mobile) {
@@ -147,7 +146,7 @@
 <div class="ui middle aligned center aligned grid" style="margin: 0">
     <div class="column">
         <h2 class="ui header">
-            <div class="dim-grey content">
+            <div class="dim-grey content" id="header">
                 你好
             </div>
         </h2>
@@ -160,7 +159,7 @@
                     </div>
                 </div>
 
-                <button class="ui fluid large submit button blue" type="submit" id="login-submit-button">✓</button>
+                <button class="ui fluid large submit button violet" type="submit" id="login-submit-button">✓</button>
             </div>
 
             <div class="ui error message" id="form-error"></div>
@@ -173,8 +172,6 @@
     </div>
 </div>
 
-
-<div id="qtk-flagship" version="v18.04.13"></div>
 </body>
 </html>
 
