@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+
+    <title>Monitor</title>
+
+    <script>
+
+        window.onload = function () {
+            if (!hasAccountId()) {
+                window.location.replace("index.html");
+            }
+        };
+
+    </script>
+
+
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/bloodpleasure.css">
+    <script src="js/something.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <!--<script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js">\x3C/script>')</script>-->
+    <script src="https://cdn.bootcss.com/paho-mqtt/1.0.2/mqttws31.min.js"></script>
+    <script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
+    <script src="https://cdn.bootcss.com/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.0.4/echarts.min.js"></script>
+    <script src="js/bloodpleasure.js"></script>
+
+    <script>
+
+
+        $(document)
+            .ready(function () {
+
+                $('.tabular.menu .item').tab();
+
+                let hm = new Hammer(document.getElementById("root"));
+                hm.on("swipeleft", function (ev) {
+                });
+
+                hm.on("swiperight", function (ev) {
+                });
+
+                connectMqtt();
+
+                if (isHardwareProvider()) {
+
+                } else {
+                    getMonitorData().innerText = "๑.๑"
+                }
+
+
+            });
+
+    </script>
+
+
+</head>
+<body>
+
+
+<div class="main ui container fs" id="root">
+    <div class="ui grid fs">
+        <div class="column main-column fs">
+            <div class="row main-row padding-top padding-bottom fs">
+
+                <div class="ui top attached tabular menu">
+                    <div class="item active" data-tab="monitor">检测</div>
+                    <div class="item" data-tab="chart">历史</div>
+                    <div class="item" data-tab="user">帐号</div>
+                </div>
+
+
+                <!--检测页-->
+                <div class="ui bottom attached tab segment active tab-fixed" data-tab="monitor">
+
+                    <div class="ui center aligned one column grid">
+                        <!--<div class="column">-->
+                        <div class="middle aligned row">
+                            <div class="column">
+                                <div class="ui monitor-circular" id="monitor-circular">
+                                    <p class="ui vertical fluid light-grey monitor-data" id="monitor-data">asdfadsf</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!--</div>-->
+                    </div>
+
+                </div>
+
+
+                <div class="ui bottom attached tab segment tab-fixed" data-tab="chart">
+                    <div id="chart" style="height: 600px; width: 800px"></div>
+                    <script type="text/javascript">
+
+                        // 基于准备好的dom，初始化echarts实例
+                        var myChart = echarts.init(document.getElementById('chart'));
+
+                        // 指定图表的配置项和数据
+                        var option = {
+                            title: {
+                                text: 'ECharts 入门示例'
+                            },
+                            tooltip: {},
+                            legend: {
+                                data: ['销量']
+                            },
+                            xAxis: {
+                                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+                            },
+                            yAxis: {},
+                            series: [{
+                                name: '销量',
+                                type: 'bar',
+                                data: [5, 20, 36, 10, 10, 20]
+                            }]
+                        };
+
+                        // 使用刚指定的配置项和数据显示图表。
+                        myChart.setOption(option);
+                    </script>
+                </div>
+                <div class="ui bottom attached tab segment tab-fixed" data-tab="user">
+                    <p>3</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

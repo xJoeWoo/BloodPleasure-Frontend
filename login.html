@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Login</title>
+
+    <script>
+        window.onload = function () {
+            if(hasAccountId()){
+                window.location.replace("index.html");
+            }
+        };
+    </script>
+
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/bloodpleasure.css">
+
+    <script src="js/something.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
+    <script src="js/bloodpleasure.js"></script>
+
+    <style type="text/css">
+        .column {
+            max-width: 450px;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+
+    let needRegisiter = false;
+
+    $(document)
+        .ready(function () {
+            $('.ui.form');
+
+            summitTimerCallback();
+
+            //是硬件确认，不是要求在手机登录
+
+            $("#login-form").submit(function (e) {
+
+                e.preventDefault();
+
+                let error = $("#form-error");
+
+                let mobile = $("#form-mobile");
+                let mobileVal = mobile.val();
+                let mobileField = $("#form-field-mobile");
+                let mobileConfirmVal = $("#form-mobile-confirm").val();
+                let mobileConfirmField = $("#form-field-mobile-confirm");
+                let submitButton = $("#login-submit-button");
+                let form = $("#login-form");
+
+                error.text("");
+                mobileConfirmField.removeClass("error");
+                mobileField.removeClass("error");
+                form.removeClass("error");
+
+                if (!isMobile(mobileVal)) {
+                    mobileField.addClass("error");
+                    return;
+                }
+
+                if (needRegisiter && (!isMobile(mobileConfirmVal) || mobileConfirmVal !== mobileVal)) {
+                    mobileConfirmField.addClass("error");
+                    return;
+                }
+
+                submitButton.addClass("loading");
+
+                if (needRegisiter) {
+                    putAccountId(mobileVal).done(function (data) {
+                        console.log(data);
+                        setAccountIdAndJump(data.id);
+                    });
+                } else {
+                    requestAccountId(mobileVal).done(function (data) {
+                            console.log(data);
+                            if (data.id < 0) {
+                                submitButton.removeClass("loading");
+                                if (!isHardwareProvider()) {
+                                    form.addClass("error");
+                                    error.text("首次使用请先在 App 登录");
+                                } else {
+                                    needRegisiter = true;
+                                    mobileField.after('\
+                     <div class="field" id="form-field-mobile-confirm" >\
+                        <div class="ui left icon input">\
+                          <i class="mobile icon"></i>\
+                           <input type="text" placeholder="确认手机" id="form-mobile-confirm">\
+                        </div>\
+                     </div>\
+                ');
+                                }
+                            } else {
+                                setAccountIdAndJump(data.id);
+                            }
+                        }
+                    );
+                }
+
+
+            });
+
+        })
+    ;
+
+    let colors = ["blue", "violet", "purple"];
+    let colorIndex = 0;
+    let direction = false;
+    let mobileRegEx = /^[1][34578][0-9]{9}$/;
+
+    function isMobile(mobile) {
+        return mobileRegEx.test(mobile);
+    }
+
+    function setAccountIdAndJump(accountId) {
+        localStorage.setItem("accountId", accountId);
+        window.location.href = getRootUrl() + "/monitor.html";
+    }
+
+    function summitTimerCallback() {
+        let summitButton = $("#login-summit-button");
+        summitButton.removeClass(colors[colorIndex]);
+        if (colorIndex >= colors.length - 1 || colorIndex < 1) {
+            direction = !direction;
+        }
+        colorIndex = direction ? colorIndex + 1 : colorIndex - 1;
+        summitButton.addClass(colors[colorIndex]);
+        setTimeout("summitTimerCallback()", 30000);
+    }
+
+    function requestAccountId(mobile) {
+        return $.get(getApiRootUrl() + "/account", {mobile: mobile})
+    }
+
+    function putAccountId(mobile) {
+        return $.post(getApiRootUrl() + "/account", "mobile=" + mobile)
+    }
+
+</script>
+
+<div class="ui middle aligned center aligned grid" style="margin: 0">
+    <div class="column">
+        <h2 class="ui header">
+            <div class="dim-grey content">
+                你好
+            </div>
+        </h2>
+        <form class="ui large form" id="login-form">
+            <div class="ui raised segment">
+                <div class="field" id="form-field-mobile">
+                    <div class="ui left icon input">
+                        <i class="mobile icon"></i>
+                        <input type="text" id="form-mobile" name="mobile" placeholder="手机">
+                    </div>
+                </div>
+
+                <button class="ui fluid large submit button blue" type="submit" id="login-submit-button">✓</button>
+            </div>
+
+            <div class="ui error message" id="form-error"></div>
+
+        </form>
+
+        <!--<div class="ui message">-->
+        <!--New to us? <a href="https://semantic-ui.com/examples/login.html#">Sign Up</a>-->
+        <!--</div>-->
+    </div>
+</div>
+
+
+<div id="qtk-flagship" version="v18.04.13"></div>
+</body>
+</html>
+
+
+

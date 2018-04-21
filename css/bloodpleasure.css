@@ -1,0 +1,85 @@
+.monitor-circular {
+    -webkit-transition: background-color 1s ease-in-out;
+    -moz-transition:    background-color 1s ease-in-out;
+    -o-transition:      background-color 1s ease-in-out;
+    -ms-transition:     background-color 1s ease-in-out;
+    transition:         background-color 1s ease-in-out;
+
+    margin-top:         200px;
+    margin-bottom:      200px;
+
+    /*-webkit-box-shadow: 0px 0px 2em #000;*/
+    /*-moz-box-shadow:  0px 0px 2em #000;*/
+    /*box-shadow:  0px 0px 2em #000;*/
+
+    /*border-radius: 50%;*/
+
+    /*background: purple;*/
+    /*height: 200px;*/
+
+    /*max-height: 70vh;*/
+    /*max-width: 70vh;*/
+
+    /*width: 80vw;*/
+    /*height: 80vw;*/
+}
+
+.monitor-data {
+    font-size: 6em;
+}
+
+.light-grey {
+    color: lightgrey;
+}
+
+.dim-grey {
+    color: dimgrey;
+}
+
+#login-summit-button {
+    -webkit-transition: background-color 30s ease-in-out;
+    -moz-transition:    background-color 30s ease-in-out;
+    -o-transition:      background-color 30s ease-in-out;
+    -ms-transition:     background-color 30s ease-in-out;
+    transition:         background-color 30s ease-in-out;
+}
+
+.fs {
+    height: 100% !important;
+}
+
+.tab-fixed {
+    /*height: 600px;*/
+}
+
+.padding-top {
+    padding-top: 100px;
+}
+
+.padding-bottom {
+    /*padding-bottom: 20px;*/
+}
+
+.grid {
+    /*height: 100%;*/
+}
+
+body > .grid {
+    height: 100%;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height:     100%;
+    /*font-family: "Source Sans Pro", Helvetica, sans-serif;*/
+    /*text-align: center;*/
+    /*font-size: large;*/
+    /*background: -webkit-gradient(315deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.17));*/
+    /*background: -webkit-gradient(linear,left top, right bottom, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, 0.15)));*/
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+    /*min-height: 100%;*/
+    /*margin: 0;*/
+}
