@@ -66,22 +66,38 @@
                                     trigger: 'axis'
                                 },
                                 legend: {
-                                    data: ['体温']
+                                    data: ['体温'],
+                                },
+                                grid: {
+                                    left: '75',
+                                    right: '30',
+                                    // bottom: '1%',
+                                    // containLabel: true
                                 },
                                 xAxis: [
                                     {
                                         type: 'category',
-                                        data: xValues
-                                    }
+                                        data: xValues,
+                                    },
+
                                 ],
                                 yAxis: [
                                     {
                                         type: 'value',
                                         axisLabel: {
+                                            // show: false,
+                                            // inside: true,
+                                            // margin: -4,
                                             formatter: '{value} °C'
                                         },
                                         splitLine: {
-                                            show: false
+                                            // show: false,
+                                            lineStyle: {
+                                                color: ['#eee']
+                                            }
+                                        },
+                                        axisTick: {
+                                            // show: false
                                         }
                                     }
                                 ],
@@ -104,6 +120,7 @@
                                         type: 'line',
                                         data: values.map(value => value.value),
                                         smooth: true,
+                                        symbolSize: 10,
                                         markPoint: {
                                             data: [
                                                 {type: 'max', name: '最大值'},
@@ -124,8 +141,8 @@
                                     }
                                 ],
                                 visualMap: {
+                                    showLabel: false,
                                     pieces: [{
-                                        gt: 0,
                                         lte: 350,
                                         color: colors[0]
                                     }, {
@@ -139,15 +156,15 @@
                                     }, {
                                         gt: 372,
                                         lte: 383,
-                                        color: colors[0]
+                                        color: colors[3]
                                     }, {
                                         gt: 383,
                                         lte: 395,
-                                        color: colors[0]
-                                    }],
-                                    outOfRange: {
+                                        color: colors[4]
+                                    }, {
+                                        gt: 396,
                                         color: colors[colors.length - 1]
-                                    }
+                                    }]
                                 },
                             };
 
