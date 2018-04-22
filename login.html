@@ -11,11 +11,55 @@
     <script src="js/something.js"></script>
     <script src="js/bloodpleasure.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/typed.js/2.0.6/typed.min.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
 
     <style type="text/css">
         .column {
             max-width: 450px;
+        }
+
+        .typed-cursor {
+            opacity:           1;
+            -webkit-animation: blink 0.7s infinite;
+            -moz-animation:    blink 0.7s infinite;
+            animation:         blink 0.7s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @-moz-keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -31,6 +75,40 @@
             jumpIndex();
             return;
         }
+
+        setTimeout(() => {
+
+            if (!isHardwareProvider()) {
+                $("#header").text("");
+                let typed = new Typed("#header", {
+                    strings: [
+                        "Hello.",
+                        "欢迎使用",
+                        "------------>    ˃ᴗ˂",
+                        "口腔体温为36.8±0.7℃",
+                        "腋窝体温36.5±0.5℃",
+                        "人类体温一般为37℃",
+                        "低烧 37.4℃～38℃",
+                        "中烧 38.1℃～39℃",
+                        "高烧 39.1℃～41℃",
+                        "<a href='https://www.zhihu.com/question/30900275'>发烧原理究竟是什么？</a>",
+                        "人体热原骨骼肌强烈收缩因而发烧",
+                        "发烧本身不是一种病",
+                        "发烧切勿捂汗应而保持良好散热",
+                        "<a href='http://songshuhui.net/archives/65206'>发烧了，退烧药该怎么吃？</a>",
+                        "<a href='http://songshuhui.net/archives/65206'>发烧时，急于退烧？</a>",
+                        "fever    n. 发热，发烧"
+                    ],
+                    typeSpeed: 100,
+                    backSpeed: 50,
+                    backDelay: 5000,
+                    loop: true,
+                    shuffle: true,
+                    smartBackspace: false,
+                });
+            }
+        }, 10000);
+
 
         $('.ui.form');
 
@@ -84,7 +162,7 @@
                                 error.text("首次使用请先在 App 登录");
                             } else {
                                 needRegisiter = true;
-                                $("#header").text("欢迎首次使用")
+                                $("#header").text("欢迎首次使用");
                                 mobileField.after('\
                      <div class="field" id="form-field-mobile-confirm" >\
                         <div class="ui left icon input">\
@@ -100,8 +178,6 @@
                     }
                 );
             }
-
-
         });
 
     })
@@ -145,9 +221,7 @@
 <div class="ui middle aligned center aligned grid" style="margin: 0">
     <div class="column">
         <h2 class="ui header">
-            <div class="dim-grey content" id="header">
-                你好
-            </div>
+            <span class="dim-grey login-title" id="header" style="display: inline;">Hello.</span>
         </h2>
         <form class="ui large form" id="login-form">
             <div class="ui raised segment">
