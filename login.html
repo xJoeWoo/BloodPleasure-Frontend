@@ -25,68 +25,67 @@
 
     let needRegisiter = false;
 
-    $(document)
-        .ready(function () {
+    $(window).on('load', () => {
 
-            if (hasAccountId()) {
-                jumpIndex();
+        if (hasAccountId()) {
+            jumpIndex();
+            return;
+        }
+
+        $('.ui.form');
+
+        submitTimerCallback();
+
+        //是硬件确认，不是要求在手机登录
+
+        $("#login-form").submit(function (e) {
+
+            e.preventDefault();
+
+            let error = $("#form-error");
+
+            let mobile = $("#form-mobile");
+            let mobileVal = mobile.val();
+            let mobileField = $("#form-field-mobile");
+            let mobileConfirmVal = $("#form-mobile-confirm").val();
+            let mobileConfirmField = $("#form-field-mobile-confirm");
+            let submitButton = $("#login-submit-button");
+            let form = $("#login-form");
+
+            error.text("");
+            mobileConfirmField.removeClass("error");
+            mobileField.removeClass("error");
+            form.removeClass("error");
+
+            if (!isMobile(mobileVal)) {
+                mobileField.addClass("error");
                 return;
             }
 
-            $('.ui.form');
+            if (needRegisiter && (!isMobile(mobileConfirmVal) || mobileConfirmVal !== mobileVal)) {
+                mobileConfirmField.addClass("error");
+                return;
+            }
 
-            submitTimerCallback();
+            submitButton.addClass("loading");
 
-            //是硬件确认，不是要求在手机登录
-
-            $("#login-form").submit(function (e) {
-
-                e.preventDefault();
-
-                let error = $("#form-error");
-
-                let mobile = $("#form-mobile");
-                let mobileVal = mobile.val();
-                let mobileField = $("#form-field-mobile");
-                let mobileConfirmVal = $("#form-mobile-confirm").val();
-                let mobileConfirmField = $("#form-field-mobile-confirm");
-                let submitButton = $("#login-submit-button");
-                let form = $("#login-form");
-
-                error.text("");
-                mobileConfirmField.removeClass("error");
-                mobileField.removeClass("error");
-                form.removeClass("error");
-
-                if (!isMobile(mobileVal)) {
-                    mobileField.addClass("error");
-                    return;
-                }
-
-                if (needRegisiter && (!isMobile(mobileConfirmVal) || mobileConfirmVal !== mobileVal)) {
-                    mobileConfirmField.addClass("error");
-                    return;
-                }
-
-                submitButton.addClass("loading");
-
-                if (needRegisiter) {
-                    putAccountId(mobileVal).done(function (data) {
+            if (needRegisiter) {
+                putAccountId(mobileVal).done(function (data) {
+                    console.log(data);
+                    setAccountIdAndJump(data.id);
+                });
+            } else {
+                requestAccountId(mobileVal).done(function (data) {
                         console.log(data);
-                        setAccountIdAndJump(data.id);
-                    });
-                } else {
-                    requestAccountId(mobileVal).done(function (data) {
-                            console.log(data);
-                            if (data.id < 0) {
-                                submitButton.removeClass("loading");
-                                if (!isHardwareProvider()) {
-                                    form.addClass("error");
-                                    error.text("首次使用请先在 App 登录");
-                                } else {
-                                    needRegisiter = true;
-                                    $("#header").text("欢迎首次使用")
-                                    mobileField.after('\
+                        if (data.id < 0) {
+                            submitButton.removeClass("loading");
+                            if (!isHardwareProvider()) {
+                                form.addClass("error");
+                                error.text("首次使用请先在 App 登录");
+                            } else {
+                                needRegisiter = true;
+                                $("#header").text("欢迎首次使用")
+                                mobileField.after('\
                      <div class="field" id="form-field-mobile-confirm" >\
                         <div class="ui left icon input">\
                           <i class="mobile icon"></i>\
@@ -94,18 +93,18 @@
                         </div>\
                      </div>\
                 ');
-                                }
-                            } else {
-                                setAccountIdAndJump(data.id);
                             }
+                        } else {
+                            setAccountIdAndJump(data.id);
                         }
-                    );
-                }
+                    }
+                );
+            }
 
 
-            });
+        });
 
-        })
+    })
     ;
 
     let colors = ["blue", "violet", "purple"];
