@@ -29,8 +29,6 @@
                 return;
             }
 
-            colors = ["#767676", "#2185d0", "#6435c9", "#a333c8", "#e03997", "#db2828"];
-
             $('.tabular.menu .item').tab({
                 'onLoad': path => {
                     if (path === "chart") {
@@ -63,7 +61,8 @@
                                     subtext: '最近100条'
                                 },
                                 tooltip: {
-                                    trigger: 'axis'
+                                    trigger: 'axis',
+                                    formatter: '{c}℃'
                                 },
                                 legend: {
                                     data: ['体温'],
@@ -84,11 +83,13 @@
                                 yAxis: [
                                     {
                                         type: 'value',
+                                        min: 'dataMin',
+                                        max: 'dataMax',
                                         axisLabel: {
                                             // show: false,
                                             // inside: true,
                                             // margin: -4,
-                                            formatter: '{value} °C'
+                                            formatter: '{value} ℃'
                                         },
                                         splitLine: {
                                             // show: false,
@@ -118,15 +119,15 @@
                                     {
                                         name: '体温',
                                         type: 'line',
-                                        data: values.map(value => value.value),
+                                        data: values.map(value => parseDisplayValue(value.value)),
                                         smooth: true,
                                         symbolSize: 10,
-                                        markPoint: {
-                                            data: [
-                                                {type: 'max', name: '最大值'},
-                                                {type: 'min', name: '最小值'}
-                                            ]
-                                        },
+                                        // markPoint: {
+                                        //     data: [
+                                        //         {type: 'max', name: '最大值'},
+                                        //         {type: 'min', name: '最小值'}
+                                        //     ]
+                                        // },
                                         markLine: {
                                             data: [
                                                 {type: 'average', name: '平均值'}
@@ -142,27 +143,39 @@
                                 ],
                                 visualMap: {
                                     showLabel: false,
+                                    text: ["高", "低"],
+                                    formatter: (value, value2) => {
+                                        if (value < 37 && 37 < value2) {
+                                            return "正常";
+                                        } else {
+                                            return "";
+                                        }
+                                    },
                                     pieces: [{
-                                        lte: 350,
+                                        lte: 36.0,
                                         color: colors[0]
                                     }, {
-                                        gt: 350,
-                                        lte: 365,
+                                        gt: 36.0,
+                                        lte: 36.5,
                                         color: colors[1]
                                     }, {
-                                        gt: 365,
-                                        lte: 372,
+                                        gt: 36.5,
+                                        lte: 37.4,
                                         color: colors[2]
                                     }, {
-                                        gt: 372,
-                                        lte: 383,
+                                        gt: 37.4,
+                                        lte: 38.1,
                                         color: colors[3]
                                     }, {
-                                        gt: 383,
-                                        lte: 395,
+                                        gt: 38.1,
+                                        lte: 39.1,
                                         color: colors[4]
                                     }, {
-                                        gt: 396,
+                                        gt: 39.1,
+                                        lte: 41,
+                                        color: colors[5]
+                                    }, {
+                                        gt: 41,
                                         color: colors[colors.length - 1]
                                     }]
                                 },
@@ -196,6 +209,7 @@
 
             $("#button-logout").click(function () {
                 $("#button-logout").addClass("loading");
+                muteHardware();
                 clearAccountId();
                 jumpIndex();
             });
@@ -237,10 +251,17 @@
 
         function hardwareValue(result, androidId) {
             let message = makeMessage(result, androidId);
-            let value = message.hardwareValue.payload.data.value;
-            putDeviceValue(message);
-            showMonitorData(value);
-            publishMqttMessage(makeMqttMessage(message))
+            let data = message.hardwareValue.payload.data;
+            if (data != null) {
+                putDeviceValue(message);
+                showMonitorData(data.value);
+                publishMqttMessage(makeMqttMessage(message))
+            } else if (message.hardwareValue.payload.connection != null) {
+
+            } else if (message.hardwareValue.payload.error != null) {
+
+            }
+
         }
 
         function onMqttConnect() {
@@ -254,7 +275,6 @@
                     console.log("mqttSubscribe: " + getTopic() + "/" + hardwareId);
                     mqttClient.subscribe(getTopic() + "/" + hardwareId);
                 });
-
             } else {
                 BloodPleasure.pageReady();
             }
@@ -316,7 +336,8 @@
         function onMqttReceived(message) {
             console.log("onMqttReceived:" + message.payloadString);
             if (!isHardwareProvider()) {
-                showMonitorData(parseMessage(message.payloadString).hardwareValue.payload.data.value)
+                let data = parseMessage(message.payloadString).hardwareValue.payload.data;
+                showMonitorData(data.value);
             }
         }
 
@@ -336,7 +357,29 @@
 
 
         function showMonitorData(value) {
-            getMonitorData().text(value);
+            let monitor = getMonitorData();
+            let temp = parseDisplayValue(value);
+            monitor.text(temp + "℃");
+            if (temp <= 36) {
+                setCss(0)
+            } else if (temp <= 36.5) {
+                setCss(1)
+            } else if (temp <= 37.4) {
+                setCss(2)
+            } else if (temp <= 38.1) {
+                setCss(3)
+            } else if (temp <= 39.1) {
+                setCss(4)
+            } else if (temp <= 41) {
+                setCss(5)
+            } else {
+                setCss(6)
+            }
+
+            function setCss(colorIndex) {
+                monitor.css('color', colors[colorIndex]);
+            }
+
         }
 
         function getMonitorData() {

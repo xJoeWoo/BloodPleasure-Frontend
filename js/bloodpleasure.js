@@ -29,7 +29,37 @@ function sleep(ms) {
 }
 
 function parseHardwareResult(json) {
-    return JSON.parse(json)
+    let data = JSON.parse(json);
+    if (data.payload.data != null) {
+        data.payload.data.value = parseValue(data.payload.data.value, data.payload.data.unit) * 10;
+    }
+    return data;
+}
+
+function parseValue(value, unit = null) {
+    if (unit == null) {
+        value = 0;
+    }
+    if (unit === "FAHRENHEIT") {
+        return Math.round(((value / 10 - 32) * 5 / 9) * 10) / 10;
+    }
+    return value / 10;
+}
+
+function parseDisplayValue(value) {
+    if (value == null) {
+        return 0;
+    }
+    return value / 10;
+}
+
+let colors = ["#767676", "#2185d0", "#6435c9", "#a333c8", "#e03997", "#f2711c", "#db2828"];
+
+function muteHardware() {
+    try {
+        BloodPleasure.mute();
+    } catch (e) {
+    }
 }
 
 function parseMessage(message) {

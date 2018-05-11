@@ -5,9 +5,13 @@
     <title>Index</title>
     <script>
         function isǝʎipɯɐ() {
+            try {
+                BloodPleasure.mute();
+            } catch (e) {
+            }
             if (localStorage.getItem("accountId") == null) {
                 window.location.replace("login.html");
-            }else{
+            } else {
                 window.location.replace("monitor.html");
             }
         }

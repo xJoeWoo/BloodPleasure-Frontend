@@ -67,47 +67,53 @@
 
 <script>
 
-    let needRegisiter = false;
+    let needRegister = false;
+    let typed = null;
 
     $(window).on('load', () => {
+
+        muteHardware();
 
         if (hasAccountId()) {
             jumpIndex();
             return;
         }
 
-        setTimeout(() => {
+        typed = new Typed("#header", {
+            strings: [
+                "Hello.",
+                "欢迎使用",
+                "       ˃ᴗ˂       ",
+                "口腔体温为 36.8±0.7℃",
+                "腋窝体温 36.5±0.5℃",
+                "人类体温一般为37℃",
+                "低烧 37.4℃～38℃",
+                "中烧 38.1℃～39℃",
+                "高烧 39.1℃～41℃",
+                "<a href='https://www.zhihu.com/question/30900275'>发烧原理究竟是什么？</a>",
+                "人体热原骨骼肌强烈收缩因而发烧",
+                "发烧本身不是一种病",
+                "发烧切勿捂汗应而保持良好散热",
+                "<a href='http://songshuhui.net/archives/65206'>发烧了，退烧药该怎么吃？</a>",
+                "<a href='http://songshuhui.net/archives/65206'>发烧时，急于退烧？</a>",
+                "fever    n. 发热，发烧"
+            ],
+            typeSpeed: 100,
+            backSpeed: 50,
+            backDelay: 5000,
+            loop: true,
+            shuffle: true,
+            smartBackspace: false,
+        });
+        typed.destroy();
+        $("#header").text("Hello.");
 
-            if (!isHardwareProvider()) {
+        setTimeout(() => {
+            if (!needRegister) {
                 $("#header").text("");
-                let typed = new Typed("#header", {
-                    strings: [
-                        "Hello.",
-                        "欢迎使用",
-                        "------------>    ˃ᴗ˂",
-                        "口腔体温为36.8±0.7℃",
-                        "腋窝体温36.5±0.5℃",
-                        "人类体温一般为37℃",
-                        "低烧 37.4℃～38℃",
-                        "中烧 38.1℃～39℃",
-                        "高烧 39.1℃～41℃",
-                        "<a href='https://www.zhihu.com/question/30900275'>发烧原理究竟是什么？</a>",
-                        "人体热原骨骼肌强烈收缩因而发烧",
-                        "发烧本身不是一种病",
-                        "发烧切勿捂汗应而保持良好散热",
-                        "<a href='http://songshuhui.net/archives/65206'>发烧了，退烧药该怎么吃？</a>",
-                        "<a href='http://songshuhui.net/archives/65206'>发烧时，急于退烧？</a>",
-                        "fever    n. 发热，发烧"
-                    ],
-                    typeSpeed: 100,
-                    backSpeed: 50,
-                    backDelay: 5000,
-                    loop: true,
-                    shuffle: true,
-                    smartBackspace: false,
-                });
+                typed.reset();
             }
-        }, 10000);
+        }, 5000);
 
 
         $('.ui.form');
@@ -140,14 +146,14 @@
                 return;
             }
 
-            if (needRegisiter && (!isMobile(mobileConfirmVal) || mobileConfirmVal !== mobileVal)) {
+            if (needRegister && (!isMobile(mobileConfirmVal) || mobileConfirmVal !== mobileVal)) {
                 mobileConfirmField.addClass("error");
                 return;
             }
 
             submitButton.addClass("loading");
 
-            if (needRegisiter) {
+            if (needRegister) {
                 putAccountId(mobileVal).done(function (data) {
                     console.log(data);
                     setAccountIdAndJump(data.id);
@@ -158,10 +164,11 @@
                         if (data.id < 0) {
                             submitButton.removeClass("loading");
                             if (!isHardwareProvider()) {
+                                error.append("首次使用请先在 App 登录，<a href='app/bloodpleasure.apk'>下载</a>");
                                 form.addClass("error");
-                                error.text("首次使用请先在 App 登录");
                             } else {
-                                needRegisiter = true;
+                                needRegister = true;
+                                typed.destroy();
                                 $("#header").text("欢迎首次使用");
                                 mobileField.after('\
                      <div class="field" id="form-field-mobile-confirm" >\
@@ -183,7 +190,7 @@
     })
     ;
 
-    let colors = ["blue", "violet", "purple"];
+    let loginButtonColors = ["blue", "violet", "purple"];
     let colorIndex = 1;
     let direction = false;
     let mobileRegEx = /^[1][34578][0-9]{9}$/;
@@ -199,12 +206,12 @@
 
     function submitTimerCallback() {
         let summitButton = $("#login-submit-button");
-        summitButton.removeClass(colors[colorIndex]);
-        if (colorIndex >= colors.length - 1 || colorIndex < 1) {
+        summitButton.removeClass(loginButtonColors[colorIndex]);
+        if (colorIndex >= loginButtonColors.length - 1 || colorIndex < 1) {
             direction = !direction;
         }
         colorIndex = direction ? colorIndex + 1 : colorIndex - 1;
-        summitButton.addClass(colors[colorIndex]);
+        summitButton.addClass(loginButtonColors[colorIndex]);
         setTimeout("submitTimerCallback()", 30000);
     }
 
@@ -221,7 +228,7 @@
 <div class="ui middle aligned center aligned grid" style="margin: 0">
     <div class="column">
         <h2 class="ui header">
-            <span class="dim-grey login-title" id="header" style="display: inline;">Hello.</span>
+            <span class="dim-grey login-title" id="header" style="display: inline;"></span>
         </h2>
         <form class="ui large form" id="login-form">
             <div class="ui raised segment">

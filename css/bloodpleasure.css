@@ -1,9 +1,5 @@
 .monitor-circular {
-    -webkit-transition: background-color 1s ease-in-out;
-    -moz-transition:    background-color 1s ease-in-out;
-    -o-transition:      background-color 1s ease-in-out;
-    -ms-transition:     background-color 1s ease-in-out;
-    transition:         background-color 1s ease-in-out;
+
 
     /*margin-top:         200px;*/
     /*margin-bottom:      200px;*/
@@ -26,6 +22,12 @@
 
 .monitor-data {
     font-size: 6em;
+
+    -webkit-transition: color 1s ease-in-out;
+    -moz-transition: color 1s ease-in-out;
+    -o-transition: color 1s ease-in-out;
+    -ms-transition: color 1s ease-in-out;
+    transition: color 1s ease-in-out;
 }
 
 .light-grey {
@@ -53,7 +55,7 @@
 }
 
 .padding-top {
-    padding-top: 100px;
+    padding-top: 50px;
 }
 
 .padding-bottom {
