@@ -31,7 +31,7 @@ function sleep(ms) {
 function parseHardwareResult(json) {
     let data = JSON.parse(json);
     if (data.payload.data != null) {
-        data.payload.data.value = parseValue(data.payload.data.value, data.payload.data.unit) * 10;
+        data.payload.data.value = parseValue(data.payload.data.value, data.payload.data.unit);
     }
     return data;
 }
@@ -40,10 +40,10 @@ function parseValue(value, unit = null) {
     if (unit == null) {
         value = 0;
     }
-    if (unit === "FAHRENHEIT") {
-        return Math.round(((value / 10 - 32) * 5 / 9) * 10) / 10;
+    if (unit === 2) {
+        return Math.round(((value / 10 - 32) * 5 / 9) * 10);
     }
-    return value / 10;
+    return value;
 }
 
 function parseDisplayValue(value) {
